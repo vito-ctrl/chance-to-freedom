@@ -1,4 +1,3 @@
-// import React from 'react'
 import { useState, useEffect } from "react"
 import './Game.css'
 
@@ -21,7 +20,7 @@ export default function Game() {
         const fetchdata = async() => {
             try{
                 console.log("start fetching data")
-                const res = await fetch('https://opentdb.com/api.php?amount=4')
+                const res = await fetch('https://opentdb.com/api.php?&amount=4')
                 if(!res.ok){
                     throw new Error(`HTTP ERROR! STATUS: ${res.status}`);
                 }
@@ -33,41 +32,59 @@ export default function Game() {
         } 
         fetchdata();
     }, [])
-    console.log(input)
-    console.log(data)
-  return (
-    <> 
-        {data && data.results ? (
-            <>
-                        <h1 className="text-white">correct_answer : {data.results[0].correct_answer}</h1>
-            <form className="mx-auto mt-16 max-w-xl sm:mt-20">
-                <h1 className="question text-white">{data.results[0].question}</h1>
-                <div className="submit">
-                    <div className="flex items-center justify-center border-b border-teal-500 py-2">
-                        <input
-                        onChange={(e) => setInput(() => e.target.value)}
-                        className={`input appearance-none bg-transparent border-none w-full text-gray-300 mr-3 py-1 px-2 leading-tight focus:outline-none`}
-                        type="text" 
-                        placeholder="Answear" 
-                        required/>
-                    {/* {error && <h1 className="text-red-500 text-sm mt-1">{error}</h1>} */}
-                    </div>
-                    <button
-                        type="submit"
-                        className="mt-6 block w-full rounded-md bg-teal-500 px-3.5 py-2.5 text-center text-sm font-semibold text-white shadow-xs hover:bg-teal-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-600"
+    
+    // Function to decode HTML entities
+    const decodeHTML = (html: string) => {
+        const txt = document.createElement('textarea');
+        txt.innerHTML = html;
+        return txt.value;
+    };
+
+    return (
+        <div className="min-h-screen flex items-center justify-center p-4"> 
+            {data && data.results ? (
+                <>
+                    <form className="mx-auto max-w-xl w-full">
+                        <h1
+                            className="difficulty"
+                            style={{
+                                background: data.results[0].difficulty === 'hard' ? '#ef4444' : 
+                                           data.results[0].difficulty === 'easy' ? '#10b981' : '#f59e0b'
+                            }}
                         >
-                            Submit
-                    </button>
+                            {data.results[0].difficulty}
+                        </h1>   
+                        <h1 className="question text-white" 
+                            dangerouslySetInnerHTML={{ __html: data.results[0].question }}>
+                        </h1>
+                        <div className="submit">
+                            <input
+                                onChange={(e) => setInput(e.target.value)}
+                                className="input"
+                                type="text" 
+                                placeholder="Enter your answer" 
+                                required
+                            />
+                            <button
+                                type="submit"
+                                className="mt-2 block w-full rounded-md"
+                            >
+                                Submit
+                            </button>
+                        </div>
+                        <div className="quiz-info">
+                            <h1 className="type text-white">Type: {data.results[0].type}</h1>
+                            <h1 className="text-white">Category: {data.results[0].category}</h1>
+                            <h1 className="text-white">Correct answer: {decodeHTML(data.results[0].correct_answer)}</h1>
+                            <h1 className="text-white">Incorrect answers: {data.results[0].incorrect_answers.map(answer => decodeHTML(answer)).join(', ')}</h1>
+                        </div>
+                    </form>
+                </>
+            ) : (
+                <div className="loading">
+                    <div className="animate-pulse text-white text-xl">Loading quiz...</div>
                 </div>
-                <h1 className="type text-white">type:{data.results[0].type}</h1>
-                <h1 className="text-white">difficulty : {data.results[0].difficulty}</h1>   
-                <h1 className="text-white">incorrect_answers : {data.results[0].incorrect_answers}</h1>
-                <h1 className="text-white">category : {data.results[0].category}</h1>
-            </form>
-            </>
-        ) : (
-            <></>
-        )}
-    </>
-  )
+            )}
+        </div>
+    )
 }
