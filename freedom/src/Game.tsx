@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react"
+import { useLocation } from "react-router-dom";
 import './Game.css'
 
 export default function Game() {
@@ -13,8 +14,11 @@ export default function Game() {
         }[];
       }
       
-      const [data, setData] = useState<QuizData | null>(null);
-      const [input, setInput] = useState('')
+    const location = useLocation();
+    const {name} = location.state || {}
+
+    const [data, setData] = useState<QuizData | null>(null);
+    const [input, setInput] = useState('')
 
     useEffect(() => {
         const fetchdata = async() => {
@@ -40,11 +44,23 @@ export default function Game() {
         return txt.value;
     };
 
+    const validanswer = (e : React.FormEvent) => {
+        e.preventDefault()
+        console.log('testing11111111111')
+        if (data?.results[0].correct_answer === input || data?.results[0].correct_answer.toLowerCase() === input){
+            console.log('your godamn right')
+        } else {
+            console.log("loseeeeeee")
+        }
+    }
+    
+    console.log('corect answer',data?.results[0].correct_answer)
     return (
         <div className="min-h-screen flex items-center justify-center p-4"> 
             {data && data.results ? (
                 <>
-                    <form className="mx-auto max-w-xl w-full">
+                    <form onSubmit={validanswer} className="mx-auto max-w-xl w-full">
+                        <h1>hello : {name}</h1>
                         <h1
                             className="difficulty"
                             style={{

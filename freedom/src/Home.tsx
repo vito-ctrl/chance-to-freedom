@@ -1,6 +1,8 @@
 import './Home.css'
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+// import Game from './Game'
+// import { Query } from 'mongoose'
 
 export default function Home() {
   const [name, setName] = useState('')
@@ -14,7 +16,11 @@ export default function Home() {
     } else {
       localStorage.setItem('name', name)
       setError('')
-      Navigate('/game')
+      Navigate('/game', {
+        state: {
+          name: name
+        }
+      })
     }
   }
   const locname = localStorage.getItem('name') || ''
