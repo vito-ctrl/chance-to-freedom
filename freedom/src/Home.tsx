@@ -1,18 +1,25 @@
 import './Home.css'
 import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
+
 export default function Home() {
   const [name, setName] = useState('')
   const [error, setError] = useState('')
+  const Navigate = useNavigate()
 
   const validation = (e: React.FormEvent) => {
     e.preventDefault();
-    console.log('start')
     if(!name.trim()) {
       setError('name is required')
     } else {
+      localStorage.setItem('name', name)
       setError('')
+      Navigate('/game')
     }
   }
+  const locname = localStorage.getItem('name') || ''
+
+  console.log(locname)
 
   return (
     <>
@@ -26,7 +33,7 @@ export default function Home() {
                     placeholder="Enter Your Name" 
                     required/>
                 </div>
-                {error&& <h1 className="text-red-500 text-sm mt-1">{error}</h1>}
+                {error && <h1 className="text-red-500 text-sm mt-1">{error}</h1>}
                 <button
                   onClick={validation}
                   type="submit"
