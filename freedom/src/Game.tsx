@@ -23,8 +23,8 @@ export default function Game() {
     const Navigate = useNavigate()
 
     const [data, setData] = useState<QuizData | null>(null);
-    // const [input, setInput] = useState('')
     const [num, setNum] = useState(0)
+    const [score, setScore] = useState(0)
 
     useEffect(() => {
         const fetchdata = async() => {
@@ -40,13 +40,12 @@ export default function Game() {
                         localStorage.setItem('triviaToken', token);
                     }
                 }
-                const res = await fetch('https://opentdb.com/api.php?&amount=2')
+                const res = await fetch('https://opentdb.com/api.php?&amount=5')
                 if(!res.ok){
                     throw new Error(`HTTP ERROR! STATUS: ${res.status}`);
                 }
                 const quiz = await res.json();
                 setData(quiz)
-                // Navigate('',{state:{choises : data?.results[num].incorrect_answers}})
             } catch (error) {
                 console.log('failed to fetch quiz data : ', error)
             }
@@ -55,37 +54,44 @@ export default function Game() {
     }, [])
     
     // Function to decode HTML entities
-    const decodeHTML = (html: string) => {
-        const txt = document.createElement('textarea');
-        txt.innerHTML = html;
-        return txt.value;
-    };
+    // const decodeHTML = (html: string) => {
+    //     const txt = document.createElement('textarea');
+    //     txt.innerHTML = html;
+    //     return txt.value;
+    // };
 
-    const validanswer = (e : React.FormEvent) => {
-        e.preventDefault()
-        if (data?.results[num].correct_answer === input || data?.results[num].correct_answer.toLowerCase() === input){
-            setNum(num+1)
-        } else {
-        }
-    }
+    // const finish = () => {
+    //     // if( num >= data.results.length ){
+            
+    //     // }
+    // }
     console.log(data)
-    console.log('corect answer',data?.results[num].correct_answer)
     return (
         <div className="min-h-screen flex items-center justify-center p-4"> 
-                {data && data.results && num >= data.results.length ? (
-                    <div className="text-center text-white">
-                        <h1 className="text-2xl font-bold">🎉 Quiz Finished!</h1>
-                        <p>Great job, {name}! You completed the quiz.</p>
-                        <button
-                        onClick={() => Navigate('/')}
-                        className="mt-4 bg-blue-500 text-white px-4 py-2 rounded-md"
-                        >
-                        Go Back to Home
-                        </button>
+            {data && data.results && num >= data.results.length ? (
+                <div className="text-center text-white">
+                    <h1 className="text-2xl font-bold">🎉 Quiz Finished!</h1>
+                    <p>Great job, {name}! You completed the quiz.</p>
+                    <div className="mt-4 p-4 bg-blue-900 rounded-lg">
+                        <h2 className="text-xl font-bold">Your Score: {score}/{data.results.length}</h2>
+                        <p className="mt-2">
+                            {score === data.results.length ? 
+                                "Perfect score! You're amazing!" : 
+                                score > data.results.length/2 ? 
+                                    "Well done! That's a good score!" : 
+                                    "Keep practicing, you'll do better next time!"}
+                        </p>
                     </div>
-                    ) : data && data.results && data.results.length > num ? (
+                    <button
+                    onClick={() => Navigate('/')}
+                    className="mt-4 bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600"
+                    >
+                    Play Again
+                    </button>
+                </div>
+            )  : data && data.results && data.results.length? (
                 <>
-                    <form onSubmit={validanswer} className="mx-auto max-w-xl w-full">
+                    <form className="mx-auto max-w-xl w-full">
                         <h1>hello : {name}</h1>
                         <h1
                             className="difficulty"
@@ -103,7 +109,9 @@ export default function Game() {
                         incorrect= {data.results[num].incorrect_answers } 
                         correct={data.results[num].correct_answer}
                         num={num}
-                        setNum={setNum}/>
+                        setNum={setNum}
+                        score={score}
+                        setScore={setScore}/>
                     </form>
                 </>
             ) : (
