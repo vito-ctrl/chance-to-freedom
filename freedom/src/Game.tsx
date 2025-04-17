@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react"
 import { useLocation, useNavigate } from "react-router-dom";
-// import { useNavigate } from "react-router-dom";
 import './Game.css'
+import Choises from "./Choises";
 
 export default function Game() {
     interface QuizData {
@@ -12,6 +12,8 @@ export default function Game() {
           question: string;
           correct_answer: string;
           incorrect_answers: string[];
+          incorrect: string[]
+          correct: string
         }[];
       }
       
@@ -21,27 +23,36 @@ export default function Game() {
     const Navigate = useNavigate()
 
     const [data, setData] = useState<QuizData | null>(null);
-    const [input, setInput] = useState('')
-    const [lose, setLose] = useState('')
-    const [win, setWin] = useState('')
+    // const [input, setInput] = useState('')
     const [num, setNum] = useState(0)
 
     useEffect(() => {
         const fetchdata = async() => {
             try{
                 console.log("start fetching data")
+                let token = localStorage.getItem('triviaToken');
+            
+                if (!token) {
+                    const tokenResponse = await fetch('https://opentdb.com/api_token.php?command=request');
+                    const tokenData = await tokenResponse.json();
+                    if (tokenData.response_code === 0) {
+                        let token = tokenData.token;
+                        localStorage.setItem('triviaToken', token);
+                    }
+                }
                 const res = await fetch('https://opentdb.com/api.php?&amount=2')
                 if(!res.ok){
                     throw new Error(`HTTP ERROR! STATUS: ${res.status}`);
                 }
                 const quiz = await res.json();
                 setData(quiz)
+                // Navigate('',{state:{choises : data?.results[num].incorrect_answers}})
             } catch (error) {
                 console.log('failed to fetch quiz data : ', error)
             }
         } 
         fetchdata();
-    }, [num])
+    }, [])
     
     // Function to decode HTML entities
     const decodeHTML = (html: string) => {
@@ -53,13 +64,8 @@ export default function Game() {
     const validanswer = (e : React.FormEvent) => {
         e.preventDefault()
         if (data?.results[num].correct_answer === input || data?.results[num].correct_answer.toLowerCase() === input){
-            setWin('your godamn right')
-            setLose('')
             setNum(num+1)
-            setInput('')
         } else {
-            setLose('Uncorrect')
-            setWin('')
         }
     }
     console.log(data)
@@ -93,35 +99,11 @@ export default function Game() {
                         <h1 className="question text-white" 
                             dangerouslySetInnerHTML={{ __html: data.results[num].question }}>
                         </h1>
-                        <div className="submit">
-                            <input
-                                onChange={(e) => setInput(e.target.value)}
-                                className="input"
-                                type="text" 
-                                placeholder="Enter your answer" 
-                                required
-                            />
-                            {lose && <p className="text-red-500">{lose}</p> || win && <p className="text-green-500">{win}</p>}
-                            <button
-                                type="submit"
-                                className="mt-2 block w-full rounded-md"
-                            >
-                                Submit
-                            </button>
-                            <button
-                                onClick={() => Navigate('/')}
-                                type="submit"
-                                className="mt-2 block w-full rounded-md"
-                            >
-                                Quit
-                            </button>
-                        </div>
-                        <div className="quiz-info">
-                            <h1 className="type text-white">Type: {data.results[num].type}</h1>
-                            <h1 className="text-white">Category: {data.results[num].category}</h1>
-                            <h1 className="text-white">Correct answer: {decodeHTML(data.results[num].correct_answer)}</h1>
-                            <h1 className="text-white">Incorrect answers: {data.results[num].incorrect_answers.map(answer => decodeHTML(answer)).join(', ')}</h1>
-                        </div>
+                        <Choises 
+                        incorrect= {data.results[num].incorrect_answers } 
+                        correct={data.results[num].correct_answer}
+                        num={num}
+                        setNum={setNum}/>
                     </form>
                 </>
             ) : (
