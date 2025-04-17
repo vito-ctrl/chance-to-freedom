@@ -92,6 +92,20 @@ export default function Game() {
             )  : data && data.results && data.results.length? (
                 <>
                     <form className="mx-auto max-w-xl w-full">
+                        <div className="flex justify-between mb-1">
+                        <span className="text-base font-medium text-blue-700 dark:text-white">Progress</span>
+                        <span className="text-sm font-medium text-blue-700 dark:text-white">
+                            {Math.round((num / data.results.length) * 100)}%
+                        </span>
+                        </div>
+                        <div className="barre w-full bg-gray-200 rounded-full h-2.5 dark:bg-gray-700">
+                        <div
+                            className="bg-blue-500 h-2.5 rounded-full transition-all duration-500"
+                            style={{
+                            width: `${(num / data.results.length) * 100}%`,
+                            }}
+                        ></div>
+                        </div>
                         <h1>hello : {name}</h1>
                         <h1
                             className="difficulty"

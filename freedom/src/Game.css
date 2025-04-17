@@ -70,6 +70,9 @@ input {
   border: 2px solid transparent;
   transition: border-color 0.2s;
 }
+/* .barre {
+  width: 40%;
+} */
 
 input:focus {
   outline: none;
