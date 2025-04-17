@@ -59,12 +59,6 @@ export default function Game() {
     //     txt.innerHTML = html;
     //     return txt.value;
     // };
-
-    // const finish = () => {
-    //     // if( num >= data.results.length ){
-            
-    //     // }
-    // }
     console.log(data)
     return (
         <div className="min-h-screen flex items-center justify-center p-4"> 

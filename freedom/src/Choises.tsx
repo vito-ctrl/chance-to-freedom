@@ -1,7 +1,6 @@
 import { useState } from 'react'
 import './Game.css'
 
-// Define the props interface
 interface ChoisesProps {
     incorrect?: string[],
     correct: string
@@ -13,8 +12,6 @@ interface ChoisesProps {
 
 export default function Choises({ incorrect = [], correct, num, setNum, score, setScore}: ChoisesProps) {
     const [result, setResult] = useState('')
-    // const [num, setNum] = useState(0)
-        // console.log(lose)
         const validatechoises = (e : React.MouseEvent<HTMLButtonElement>, iscorrect : boolean) => {
             e.preventDefault()
             if(iscorrect){
