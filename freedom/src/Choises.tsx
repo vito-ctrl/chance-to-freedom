@@ -3,46 +3,55 @@ import './Game.css'
 
 interface ChoisesProps {
     incorrect?: string[],
-    correct: string
+    correct: string,
     num: number,
-    setNum: (num: number) => void 
+    setNum: (num: number) => void,
     score: number,
-    setScore: (num: number) => void 
+    setScore: (num: number) => void
 }
 
-export default function Choises({ incorrect = [], correct, num, setNum, score, setScore}: ChoisesProps) {
-    const [result, setResult] = useState('')
-        const validatechoises = (e : React.MouseEvent<HTMLButtonElement>, iscorrect : boolean) => {
-            e.preventDefault()
-            if(iscorrect){
-                setResult('you got damn right')
-                setNum(num + 1)
-                setScore(score + 1)
-            } else {
-                setResult('loooser')
-                setNum(num + 1)
-                setScore(score + 0)
-            }
+export default function Choises({ incorrect = [], correct, num, setNum, score, setScore }: ChoisesProps) {
+    const [clickedIndex, setClickedIndex] = useState<number | null>(null)
+    const [isCorrect, setIsCorrect] = useState<boolean | null>(null)
+
+    const allChoices = [...incorrect, correct] // correct is last one
+    const correctIndex = allChoices.length - 1
+
+    const handleClick = (index: number) => {
+        if (clickedIndex !== null) return // prevent more than one click
+        setClickedIndex(index)
+
+        const wasCorrect = index === correctIndex
+        setIsCorrect(wasCorrect)
+        if (wasCorrect) {
+            setScore(score + 1)
         }
-  
-  return (
-    <div className="choices-container">
-            {incorrect && incorrect.map((choice, index) => (
-                <button 
-                key={index} 
-                type="submit"
-                onClick={(e) =>  validatechoises(e, false)}
-                className="choice-item flex ">
-                {choice}
-                </button>
-            ))}
-                <button 
-                    type="submit"
-                    onClick={(e) => validatechoises(e, true) }
-                    className="choice-item flex ">
-                    {correct}
-                </button>
-        <h1>{result}</h1>
-    </div>
-  )
+
+        setTimeout(() => {
+            setClickedIndex(null)
+            setIsCorrect(null)
+            setNum(num + 1)
+        }, 300)
+    }
+
+    return (
+        <div className="choices-container">
+            {allChoices.map((choice, index) => {
+                let className = "choice-item"
+                if (index === clickedIndex) {
+                    className += isCorrect ? " correct" : " incorrect"
+                }
+
+                return (
+                    <button
+                        key={index}
+                        onClick={() => handleClick(index)}
+                        className={className}
+                        disabled={clickedIndex !== null}
+                        dangerouslySetInnerHTML={{ __html: choice }}
+                    />
+                )
+            })}
+        </div>
+    )
 }
