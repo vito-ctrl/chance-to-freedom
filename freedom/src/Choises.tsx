@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import './Game.css'
 
 interface ChoisesProps {
@@ -10,19 +10,37 @@ interface ChoisesProps {
     setScore: (num: number) => void
 }
 
+interface ChoiceItem {
+    text: string,
+    isCorrect: boolean
+}
+
 export default function Choises({ incorrect = [], correct, num, setNum, score, setScore }: ChoisesProps) {
     const [clickedIndex, setClickedIndex] = useState<number | null>(null)
     const [isCorrect, setIsCorrect] = useState<boolean | null>(null)
 
-    const allChoices = [...incorrect, correct] // correct is last one
-    const correctIndex = allChoices.length - 1
+    // Shuffle only when question changes
+    const shuffledChoices: ChoiceItem[] = useMemo(() => {
+        const all: ChoiceItem[] = [
+            ...incorrect.map(i => ({ text: i, isCorrect: false })),
+            { text: correct, isCorrect: true }
+        ]
+
+        for (let i = all.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1))
+            ;[all[i], all[j]] = [all[j], all[i]]
+        }
+
+        return all
+    }, [num]) // re-run shuffle only when question number changes
 
     const handleClick = (index: number) => {
-        if (clickedIndex !== null) return // prevent more than one click
-        setClickedIndex(index)
+        if (clickedIndex !== null) return
 
-        const wasCorrect = index === correctIndex
+        const wasCorrect = shuffledChoices[index].isCorrect
+        setClickedIndex(index)
         setIsCorrect(wasCorrect)
+
         if (wasCorrect) {
             setScore(score + 1)
         }
@@ -31,15 +49,16 @@ export default function Choises({ incorrect = [], correct, num, setNum, score, s
             setClickedIndex(null)
             setIsCorrect(null)
             setNum(num + 1)
-        }, 300)
+        }, 1000)
     }
+    console.log(correct)
 
     return (
         <div className="choices-container">
-            {allChoices.map((choice, index) => {
+            {shuffledChoices.map((choice, index) => {
                 let className = "choice-item"
                 if (index === clickedIndex) {
-                    className += isCorrect ? " correct" : " incorrect"
+                    className += choice.isCorrect ? " correct" : " incorrect"
                 }
 
                 return (
@@ -48,7 +67,7 @@ export default function Choises({ incorrect = [], correct, num, setNum, score, s
                         onClick={() => handleClick(index)}
                         className={className}
                         disabled={clickedIndex !== null}
-                        dangerouslySetInnerHTML={{ __html: choice }}
+                        dangerouslySetInnerHTML={{ __html: choice.text }}
                     />
                 )
             })}
